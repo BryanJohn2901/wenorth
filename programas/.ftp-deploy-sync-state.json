@@ -1,0 +1,221 @@
+{
+    "description": "DO NOT DELETE THIS FILE. This file is used to keep track of which files have been synced in the most recent deployment. If you delete this file a resync will need to be done (which can take a while) - read more: https://github.com/SamKirkland/FTP-Deploy-Action",
+    "version": "1.0.0",
+    "generatedTime": 1793822412753,
+    "data": [
+        {
+            "type": "folder",
+            "name": "academia-360"
+        },
+        {
+            "type": "folder",
+            "name": "academia-certificada"
+        },
+        {
+            "type": "folder",
+            "name": "aplicar"
+        },
+        {
+            "type": "folder",
+            "name": "assets"
+        },
+        {
+            "type": "folder",
+            "name": "autoridade-medica"
+        },
+        {
+            "type": "folder",
+            "name": "biomecanica"
+        },
+        {
+            "type": "folder",
+            "name": "black"
+        },
+        {
+            "type": "folder",
+            "name": "club"
+        },
+        {
+            "type": "folder",
+            "name": "escala"
+        },
+        {
+            "type": "folder",
+            "name": "ia"
+        },
+        {
+            "type": "folder",
+            "name": "ignite-ads"
+        },
+        {
+            "type": "file",
+            "name": "index.html",
+            "size": 25410,
+            "hash": "599557c0c8c12fb3e54f64652e490e3113ba4bfb0e02bdb8c3a45dbecf91a54f"
+        },
+        {
+            "type": "folder",
+            "name": "lancamento"
+        },
+        {
+            "type": "folder",
+            "name": "marcas"
+        },
+        {
+            "type": "folder",
+            "name": "mco"
+        },
+        {
+            "type": "folder",
+            "name": "next"
+        },
+        {
+            "type": "folder",
+            "name": "patrimonio-medico"
+        },
+        {
+            "type": "folder",
+            "name": "scala"
+        },
+        {
+            "type": "file",
+            "name": "sitemap.xml",
+            "size": 1456,
+            "hash": "ece642b235c6ca2b56b36f42adf908082344a189a5e71b6a565ac0b45131ea6e"
+        },
+        {
+            "type": "folder",
+            "name": "sobre"
+        },
+        {
+            "type": "folder",
+            "name": "summit"
+        },
+        {
+            "type": "file",
+            "name": "academia-360/index.html",
+            "size": 37083,
+            "hash": "cc02b0bfadf0398b925d8c4827abe68a07a07046bc655b6e5f8b151621ccb0c2"
+        },
+        {
+            "type": "file",
+            "name": "academia-certificada/index.html",
+            "size": 34679,
+            "hash": "26858c380995f1b407606669a1f2633752093f7253f31b58fa7a893e6bfb1a6d"
+        },
+        {
+            "type": "file",
+            "name": "aplicar/index.html",
+            "size": 26446,
+            "hash": "48ebb047fc4f245e8a4b4ba318fd6ba71d105304c95572cecc4321f880a0eaf3"
+        },
+        {
+            "type": "file",
+            "name": "assets/favicon.svg",
+            "size": 231,
+            "hash": "56941fafbf212d357b7b1c4bb5c752f8d73555469fc4a05a35b317db6205895b"
+        },
+        {
+            "type": "file",
+            "name": "assets/site.css",
+            "size": 40194,
+            "hash": "362819c21ccf936ce1c1d472975de05ef7c55295bd917026c1baae817a06a4b7"
+        },
+        {
+            "type": "file",
+            "name": "assets/site.js",
+            "size": 98168,
+            "hash": "c011c2b37a42895a810d6deb0b60bb03edac10b77b86406bc84dbbc07a9a86ee"
+        },
+        {
+            "type": "file",
+            "name": "autoridade-medica/index.html",
+            "size": 38187,
+            "hash": "f8efb26d5e68c82a4c0eed5032bbf987ac477b682b76c41144ec4d062fcd8011"
+        },
+        {
+            "type": "file",
+            "name": "biomecanica/index.html",
+            "size": 37783,
+            "hash": "b721424f23c7da2d3fe2bc327f3d71357360e54a735b90cc292e143ab5b23a7e"
+        },
+        {
+            "type": "file",
+            "name": "black/index.html",
+            "size": 36354,
+            "hash": "5954533f184660c120c8a2526de789ac6a8e8643cadf3f9663311170c09c5c57"
+        },
+        {
+            "type": "file",
+            "name": "club/index.html",
+            "size": 31659,
+            "hash": "d58ca35c4fcc81d232c21ae2123a6f33e2698b0c79b18bd28135004070bc9459"
+        },
+        {
+            "type": "file",
+            "name": "escala/index.html",
+            "size": 36066,
+            "hash": "d621bb88caae2de633be7ab1139dba45906955fd33017d445818fe1944e6ab87"
+        },
+        {
+            "type": "file",
+            "name": "ia/index.html",
+            "size": 35894,
+            "hash": "8b756f16c44b88480d586115b0b6c6ee1f44561009194452cddeb071554e5eeb"
+        },
+        {
+            "type": "file",
+            "name": "ignite-ads/index.html",
+            "size": 36563,
+            "hash": "b1e3427139efe50e953c238279068733098941dace1c9c9d21771b9cf4a450b2"
+        },
+        {
+            "type": "file",
+            "name": "lancamento/index.html",
+            "size": 35143,
+            "hash": "997f1efac44b434cd28faa3840f4d1fc4a696fb004fce5d581d3cbacb2f2643a"
+        },
+        {
+            "type": "file",
+            "name": "marcas/index.html",
+            "size": 32412,
+            "hash": "57c452f9e7cfb678c083056e3488f2d7dcdf63e743cc22cabacb095a4801ab11"
+        },
+        {
+            "type": "file",
+            "name": "mco/index.html",
+            "size": 34317,
+            "hash": "d24214721fc9a4f1012e734112715069c3ff9e5332a04e1c94e17efccbe678f0"
+        },
+        {
+            "type": "file",
+            "name": "next/index.html",
+            "size": 34770,
+            "hash": "dc6df659067f995f1390cc60abfd789b5e5c05ff94768d09b333a286292710d5"
+        },
+        {
+            "type": "file",
+            "name": "patrimonio-medico/index.html",
+            "size": 37648,
+            "hash": "ad9e5262e83d9d31164dc82dee103889fd5eee1738e94fa54e9a1d9b158fc9e9"
+        },
+        {
+            "type": "file",
+            "name": "scala/index.html",
+            "size": 35991,
+            "hash": "53e83dd514d647370a2efeb239d73e7c31b1c23f10d9f2a83f70b7df9760bec4"
+        },
+        {
+            "type": "file",
+            "name": "sobre/index.html",
+            "size": 31845,
+            "hash": "89eb5d3717d89bf3dd02309053a4f3109731b09a5872439c3dd9a79d4db9fa7e"
+        },
+        {
+            "type": "file",
+            "name": "summit/index.html",
+            "size": 33511,
+            "hash": "1d5542457775c856b1aa065c0eadbbe00cd0ce7aa236e26ee4f083a2d196b6f9"
+        }
+    ]
+}

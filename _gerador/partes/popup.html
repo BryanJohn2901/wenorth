@@ -1,0 +1,54 @@
+<!-- ==================== POPUP ==================== -->
+<div id="popup-inscricao" role="dialog" aria-modal="true" aria-labelledby="popup-title" class="hidden">
+  <div class="pop-box">
+    <button type="button" id="popup-fechar" aria-label="Fechar" class="pop-close">&times;</button>
+
+    <h3 id="popup-title">Garanta sua vaga</h3>
+    <p class="pop-sub">Preencha seus dados para continuar sua inscrição.</p>
+
+    <form id="form_wenorth" class="pop-form" novalidate>
+      <div>
+        <label for="name">Nome</label>
+        <input type="text" id="name" name="nome" required autocomplete="name" placeholder="Seu nome completo" class="pop-input">
+      </div>
+
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="seu@email.com" class="pop-input">
+      </div>
+
+      <div>
+        <label for="phone">Telefone</label>
+        <div class="pop-tel">
+          <span>+55</span>
+          <input type="tel" id="phone" name="telefone" required inputmode="numeric" maxlength="15" autocomplete="tel-national" placeholder="11 99999-9999">
+        </div>
+        <span class="pop-hint">DDD + número (apenas números)</span>
+        <span id="erro-telefone" class="hidden">Informe o DDD e o número (apenas números).</span>
+      </div>
+
+      <!-- Hidden fields (OBRIGATÓRIOS) -->
+      <input type="hidden" id="utm_source"   name="utm_source"   value="">
+      <input type="hidden" id="utm_term"     name="utm_term"     value="">
+      <input type="hidden" id="utm_campaign" name="utm_campaign" value="">
+      <input type="hidden" id="utm_medium"   name="utm_medium"   value="">
+      <input type="hidden" id="utm_content"  name="utm_content"  value="">
+      <input type="hidden" id="url"          name="url"          value="">
+
+      <button type="submit" id="btn-enviar-form" class="btn">Continuar</button>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== COOKIES (LGPD) ==================== -->
+<div id="aviso-cookies" class="hidden">
+  <div class="ck-box">
+    <p>Utilizamos cookies e dados pessoais de acordo com a <strong>LGPD</strong> para melhorar sua experiência.
+       Ao continuar navegando, você concorda com nossa <a href="https://wenorthclub.com.br/politica-de-privacidade/" target="_blank" rel="noopener" style="text-decoration:underline">Política de Privacidade</a>.</p>
+    <div class="ck-actions">
+      <button type="button" id="btn-cookies-recusar">Recusar</button>
+      <button type="button" id="btn-cookies-aceitar">Aceitar</button>
+    </div>
+  </div>
+</div>
+
