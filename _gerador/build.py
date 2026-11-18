@@ -203,6 +203,27 @@ CSS_EXTRA = r"""
 .paper .chip::before{display:none}
 .paper .chip:hover{background:transparent;color:inherit;transform:none;box-shadow:none}
 .paper .chip.on,.paper .chip.on:hover{background:var(--lime);border-color:var(--lime);color:var(--ink);opacity:1}
+/* espaço entre os números do hero e o desenho do mouse */
+.hero .wrap{padding-bottom:110px}
+@media (max-width:720px){.hero .wrap{padding-bottom:56px}}
+
+/* linhas que se desenham conforme a rolagem */
+.dl{background-repeat:no-repeat;background-origin:border-box;background-clip:border-box;transition:background-size 1.2s cubic-bezier(.2,.7,.2,1) var(--dd,0ms),padding-left .4s cubic-bezier(.2,.7,.2,1),transform .5s cubic-bezier(.2,.7,.2,1)}
+
+/* barra de rolagem na identidade */
+html{scrollbar-color:var(--lime) var(--ink);scrollbar-width:thin}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--ink);border-left:1px solid var(--line)}
+::-webkit-scrollbar-thumb{background:var(--lime);border:2px solid var(--ink);border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#9BF04C}
+.drawer-body,.pop-box{scrollbar-color:var(--lime) transparent}
+
+/* rolagem suave (Lenis) */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+
 
 """
 
@@ -254,6 +275,52 @@ if(menuBtn&&drawer){
     else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   });
 }
+
+/* ---------- linhas que se desenham conforme a rolagem ---------- */
+(function(){
+  const sel=".hero,.phero,.agenda,.col,.item,.benefits,.benefit,.stats,.rec-foot,.audience,.addr,footer,.ft-bottom,.steps,.steps > div,.faq,.faq details";
+  const lados={top:["0 0","100% W","0 W"],bottom:["0 100%","100% W","0 W"],left:["0 0","W 100%","W 0"],right:["100% 0","W 100%","W 0"]};
+  const els=[...document.querySelectorAll(sel)];
+  const io=new IntersectionObserver(es=>es.forEach(en=>{if(!en.isIntersecting) return; const el=en.target; el.style.backgroundSize=el.dataset.dlFim; io.unobserve(el);}),{threshold:0,rootMargin:"0px 0px -8% 0px"});
+  els.forEach(el=>{
+    const cs=getComputedStyle(el), img=[], pos=[], ini=[], fim=[];
+    for(const lado in lados){
+      const w=parseFloat(cs[`border-${lado}-width`]); if(!w||cs[`border-${lado}-style`]==="none") continue;
+      const cor=cs[`border-${lado}-color`]; if(cor==="rgba(0, 0, 0, 0)"||cor==="transparent") continue;
+      const [p,f,i]=lados[lado];
+      img.push(`linear-gradient(${cor},${cor})`); pos.push(p); fim.push(f.replace("W",w+"px")); ini.push(i.replace("W",w+"px"));
+      el.style[`border${lado[0].toUpperCase()+lado.slice(1)}Color`]="transparent";
+    }
+    if(!img.length) return;
+    if(reduce){ el.style.backgroundImage=img.join(","); el.style.backgroundPosition=pos.join(","); el.style.backgroundSize=fim.join(","); el.classList.add("dl"); return; }
+    const irmaos=[...el.parentElement.children].filter(c=>c.matches(sel));
+    el.style.setProperty("--dd",(Math.max(0,irmaos.indexOf(el))%6)*90+"ms");
+    el.style.backgroundImage=img.join(","); el.style.backgroundPosition=pos.join(","); el.style.backgroundSize=ini.join(",");
+    el.dataset.dlFim=fim.join(",");
+    el.classList.add("dl");
+    requestAnimationFrame(()=>io.observe(el));
+  });
+})();
+
+/* ---------- rolagem suave ---------- */
+(function(){
+  if(reduce||typeof Lenis==="undefined") return;
+  document.documentElement.style.scrollBehavior="auto";
+  const lenis=new Lenis({duration:1.15,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),smoothWheel:true,wheelMultiplier:1});
+  window.lenis=lenis;
+  function raf(t){lenis.raf(t);requestAnimationFrame(raf);}
+  requestAnimationFrame(raf);
+  /* âncoras da própria página: rolagem suave descontando o menu fixo */
+  document.addEventListener("click",e=>{
+    const a=e.target.closest('a[href^="#"]'); if(!a||e.defaultPrevented) return;
+    const id=a.getAttribute("href"); if(id.length<2) return;
+    const alvo=document.querySelector(id); if(!alvo) return;
+    e.preventDefault(); const topo=document.querySelector(".top"); const off=(topo?topo.offsetHeight:0)+12; lenis.scrollTo(Math.max(0,alvo.getBoundingClientRect().top+window.scrollY-off)); history.replaceState(null,"",id);
+  });
+  /* menu lateral e popup travam a rolagem: pausa o Lenis junto */
+  document.querySelectorAll(".drawer-body,.pop-box,.v-tabs").forEach(el=>el.setAttribute("data-lenis-prevent",""));
+  new MutationObserver(()=>{document.body.style.overflow==="hidden"?lenis.stop():lenis.start();}).observe(document.body,{attributes:true,attributeFilter:["style"]});
+})();
 """
     gravar("assets/site.js", js.strip() + "\n")
 
@@ -494,6 +561,7 @@ def pagina(url, titulo, descricao, corpo, *, crumbs=None, schema=None, og_img="/
 {RODAPE}
 
 {popup_html()}
+<script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
 <script src="/assets/site.js?v={versoes['site.js']}"></script>
 <script src="/assets/captura.js?v={versoes['captura.js']}"></script>
 </body>

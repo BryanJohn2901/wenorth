@@ -500,3 +500,23 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}
 .paper .chip::before{display:none}
 .paper .chip:hover{background:transparent;color:inherit;transform:none;box-shadow:none}
 .paper .chip.on,.paper .chip.on:hover{background:var(--lime);border-color:var(--lime);color:var(--ink);opacity:1}
+/* espaço entre os números do hero e o desenho do mouse */
+.hero .wrap{padding-bottom:110px}
+@media (max-width:720px){.hero .wrap{padding-bottom:56px}}
+
+/* linhas que se desenham conforme a rolagem */
+.dl{background-repeat:no-repeat;background-origin:border-box;background-clip:border-box;transition:background-size 1.2s cubic-bezier(.2,.7,.2,1) var(--dd,0ms),padding-left .4s cubic-bezier(.2,.7,.2,1),transform .5s cubic-bezier(.2,.7,.2,1)}
+
+/* barra de rolagem na identidade */
+html{scrollbar-color:var(--lime) var(--ink);scrollbar-width:thin}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--ink);border-left:1px solid var(--line)}
+::-webkit-scrollbar-thumb{background:var(--lime);border:2px solid var(--ink);border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#9BF04C}
+.drawer-body,.pop-box{scrollbar-color:var(--lime) transparent}
+
+/* rolagem suave (Lenis) */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
