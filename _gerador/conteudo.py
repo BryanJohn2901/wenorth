@@ -159,6 +159,24 @@ def gerar(b):
     main = re.sub(r'src="img/([a-z0-9-]+)\.(?:jpg|png)"', r'src="/img/\1.webp"', main)
     main = main.replace('<a class="btn" id="btn-inscreva-hero" href="#marcas">', '<a class="btn" id="btn-inscreva-hero" href="/para-marcas/">')
 
+    def slide(i, a):
+        slug, nome, img, curto, chamada, texto, chips = a
+        chips_html = "".join(f'<span class="chip" style="--k:{k}">{c}</span>' for k, c in enumerate(chips))
+        lazy = "" if i < 2 else ' loading="lazy"'
+        return (f'<article class="hs-slide{" is-active" if i == 0 else ""}" aria-label="Ambiente {i + 1:02d} de {len(AMBIENTES)}: {nome}">'
+                f'<figure><img src="/img/{img}.webp" alt="{nome}, imagem ilustrativa" sizes="(max-width:900px) 88vw, 720px"{lazy}><span class="tag">Imagem ilustrativa · projeto em desenvolvimento</span></figure>'
+                f'<div class="hs-info"><p class="v-num">Ambiente {i + 1:02d} / {len(AMBIENTES):02d}</p><h3><a href="/ambientes/{slug}/">{nome}</a></h3><p class="v-head">{chamada}</p><p class="v-txt">{texto}</p>'
+                f'<p class="v-label">Presença de marca</p><div class="chips">{chips_html}</div>'
+                f'</div></article>')
+
+    galeria = (f'</div>\n      <div class="hs" id="hs" style="--n:{len(AMBIENTES)}" aria-roledescription="galeria" aria-label="Os 10 ambientes do clube">'
+               f'<div class="hs-sticky"><div class="hs-bar"><span class="hs-count" aria-live="polite">01 / {len(AMBIENTES):02d}</span><span class="hs-line" aria-hidden="true"><span></span></span>'
+               f'<div class="hs-nav"><button type="button" class="hs-prev" aria-label="Ambiente anterior">&larr;</button><button type="button" class="hs-next" aria-label="Próximo ambiente">&rarr;</button></div></div>'
+               f'<div class="hs-track">{"".join(slide(i, a) for i, a in enumerate(AMBIENTES))}</div></div></div>\n      <div class="wrap" style="margin-top:8px">')
+    i0 = main.index('      <div class="viewer" id="viewer">')
+    i1 = main.index('<p class="cap" style="margin-top:40px">Imagens ilustrativas')
+    main = main[:i0] + galeria + "\n      " + main[i1:]
+
     def depois(ancora, extra):
         nonlocal main
         assert main.count(ancora) == 1, ancora
@@ -340,7 +358,7 @@ def gerar(b):
                ("p-saude", "Profissionais da saúde conversando na academia", "Profissionais da saúde", "Médicos, nutricionistas e fisioterapeutas."),
                ("p-personal", "Personal trainer orientando aluna", "Personal trainers", "Profissionais que atendem a classe A."),
                ("p-marcas", "Representantes de marca entregando um produto", "Marcas parceiras", "As empresas que fazem parte do ecossistema.")]
-    grade = "\n        ".join(f'<div class="person"><img src="/img/{i}.webp" alt="{a}" loading="lazy" width="1200" height="670"><div><b>{t}</b><span>{d}</span></div></div>' for i, a, t, d in pessoas)
+    grade = "\n        ".join(f'<div class="person"><img src="/img/{i}.webp" alt="{a}" loading="lazy"><div><b>{t}</b><span>{d}</span></div></div>' for i, a, t, d in pessoas)
     corpo = phero(crumbs, "Quem está lá", 'As pessoas que movem o fitness e o <span class="u">wellness</span> no Brasil.',
                   "O clube reúne empresários, influenciadores, professores, profissionais da saúde, personal trainers e marcas no mesmo ambiente.",
                   "/img/p-professores.webp", cap=False)
@@ -533,7 +551,7 @@ def gerar(b):
         <p class="v-label">Presença de marca</p>
         <div class="chips" style="margin-top:12px">{chips_html}</div>
       </div>
-      <figure class="figure-wide"><img src="/img/{img}.webp" alt="{nome} do WeNorth Club, imagem ilustrativa" width="1200" height="675" loading="lazy"><figcaption>Imagem ilustrativa · projeto em desenvolvimento</figcaption></figure>
+      <figure class="figure-wide"><img src="/img/{img}.webp" alt="{nome} do WeNorth Club, imagem ilustrativa" loading="lazy"><figcaption>Imagem ilustrativa · projeto em desenvolvimento</figcaption></figure>
     </div>
   </section>
 
@@ -634,12 +652,12 @@ def gerar(b):
       <h2>Quem <span class="u">conduz</span> o clube.</h2>
       <div class="leaders">
         <article class="leader">
-          <img src="/img/andre.webp" alt="Retrato de André Albuquerque" loading="lazy" width="900" height="1489">
+          <img src="/img/andre.webp" alt="Retrato de André Albuquerque" loading="lazy">
           <div class="txt"><h3><a href="/andre-albuquerque/">André Albuquerque</a></h3><p>Mestre em biomecânica · CEO do WeNorth Club</p>
             <div class="nums"><div><b>335 mil</b><span>Instagram</span></div><div><b>47 mil</b><span>YouTube</span></div></div></div>
         </article>
         <article class="leader">
-          <img src="/img/rafael.webp" alt="Retrato de Rafael Tonietto" loading="lazy" width="900" height="1489">
+          <img src="/img/rafael.webp" alt="Retrato de Rafael Tonietto" loading="lazy">
           <div class="txt"><h3><a href="/rafael-tonietto/">Rafael Tonietto</a></h3><p>Doutor em educação · Especialista em vendas no digital · CEO do WeNorth Club</p>
             <div class="nums"><div><b>16 mil</b><span>Instagram</span></div></div></div>
         </article>
@@ -753,7 +771,7 @@ def gerar(b):
         corpo += f'''
   <section class="band">
     <div class="wrap two">
-      <figure class="figure-wide figure-tall"><img src="/img/{img}.webp" alt="Retrato de {nome}" width="900" height="1489" loading="lazy"></figure>
+      <figure class="figure-wide figure-tall"><img src="/img/{img}.webp" alt="Retrato de {nome}" loading="lazy"></figure>
       <div class="prose">
         <h2 style="margin-top:0">{cargo_curto}, <span class="u">CEO</span>.</h2>
         {bio}
@@ -1010,7 +1028,7 @@ def gerar(b):
         corpo += f'''
   <article class="band">
     <div class="wrap">
-      <figure class="figure-wide" style="margin-bottom:56px"><img src="/img/{p['img']}.webp" alt="{p['titulo']}" width="1200" height="675"><figcaption>Imagem ilustrativa</figcaption></figure>
+      <figure class="figure-wide" style="margin-bottom:56px"><img src="/img/{p['img']}.webp" alt="{p['titulo']}" sizes="(max-width:1300px) 92vw, 1140px"><figcaption>Imagem ilustrativa</figcaption></figure>
       <div class="prose">
         {artigo}
       </div>

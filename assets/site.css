@@ -515,8 +515,143 @@ html{scrollbar-color:var(--lime) var(--ink);scrollbar-width:thin}
 ::-webkit-scrollbar-thumb:hover{background:#9BF04C}
 .drawer-body,.pop-box{scrollbar-color:var(--lime) transparent}
 
+
+/* botões flutuantes: WhatsApp e voltar ao topo */
+.fab{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px) + var(--ck-h,0px));z-index:80;display:flex;flex-direction:column;align-items:center;gap:12px;transition:bottom .35s cubic-bezier(.2,.7,.2,1)}
+.fab a,.fab button{position:relative;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;border:0;padding:0;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .25s,background .25s,box-shadow .3s,opacity .3s,visibility 0s}
+.fab a:focus-visible,.fab button:focus-visible{outline:2px solid var(--white);outline-offset:4px}
+.fab .wa{background:#25D366;color:#fff;box-shadow:0 10px 28px -8px rgba(37,211,102,.7)}
+.fab .wa svg{width:30px;height:30px}
+.fab .wa::before{content:"";position:absolute;inset:0;border-radius:50%;background:#25D366;z-index:-1;animation:waPulse 2.4s ease-out infinite}
+.fab .wa:hover{background:#128C7E;transform:translateY(-3px) scale(1.04)}
+.fab .wa .tip{position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%) translateX(8px);opacity:0;pointer-events:none;white-space:nowrap;background:var(--ink);color:var(--white);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font:500 14px/1 var(--body);transition:opacity .25s,transform .25s}
+.fab .wa:hover .tip,.fab .wa:focus-visible .tip{opacity:1;transform:translateY(-50%)}
+.fab .top-btn{width:48px;height:48px;background:var(--deep);color:var(--lime);border:1.5px solid rgba(130,230,40,.7);box-shadow:0 8px 24px -10px rgba(0,0,0,.8);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .3s,transform .3s,visibility 0s .3s,background .25s,color .25s}
+.fab .top-btn.show{opacity:1;visibility:visible;transform:none;transition:opacity .3s,transform .3s,background .25s,color .25s}
+.fab .top-btn.show:hover{background:var(--lime);color:var(--ink);transform:translateY(-3px)}
+.fab .top-btn svg{width:20px;height:20px}
+@keyframes waPulse{0%{transform:scale(1);opacity:.55}70%,100%{transform:scale(1.55);opacity:0}}
+@media (max-width:540px){.fab .wa{width:54px;height:54px}.fab .wa .tip{display:none}}
+@media (min-width:768px){#aviso-cookies{right:calc(max(20px,env(safe-area-inset-right,0px)) + 58px + 24px)}}
+
 /* rolagem suave (Lenis) */
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 .lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
 .lenis.lenis-stopped{overflow:hidden}
+
+/* seleção de texto na cor da marca */
+::selection{background:var(--lime);color:var(--ink);text-shadow:none}
+::-moz-selection{background:var(--lime);color:var(--ink);text-shadow:none}
+input::selection,textarea::selection{background:var(--lime);color:var(--ink)}
+img::selection{background:rgba(130,230,40,.35)}
+/* imagens com width/height no HTML nunca ficam esticadas */
+img{height:auto}
+.leaders > .leader{--d:0ms!important}
+/* ===== ambientes: galeria que anda na horizontal conforme a rolagem ===== */
+.hs{--W:clamp(280px,86vw,1180px);position:relative;margin-top:48px}
+.hs-sticky{display:block}
+.hs-bar{display:flex;align-items:center;gap:20px;width:100%;max-width:1180px;box-sizing:border-box;margin:0 auto 26px;padding-inline:max(20px,env(safe-area-inset-left,0px))}
+.hs-count{font-family:var(--mono);font-size:13px;letter-spacing:.24em;color:var(--lime);white-space:nowrap;min-width:5.2em}
+.hs-line{position:relative;flex:1;height:2px;background:var(--line);overflow:hidden}
+.hs-line span{position:absolute;inset:0;background:var(--lime);transform:scaleX(0);transform-origin:left}
+.hs-nav{display:flex;gap:10px}
+.hs-nav button{all:unset;box-sizing:border-box;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:var(--aqua);cursor:pointer;font-size:18px;transition:border-color .4s var(--soft),color .4s var(--soft),background .4s var(--soft)}
+.hs-nav button:hover{border-color:var(--lime);color:var(--lime)}
+.hs-nav button:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.hs-nav button[disabled]{opacity:.35;cursor:default;border-color:var(--line);color:var(--aqua)}
+.hs-track{display:flex;gap:40px;padding-inline:max(20px,calc((100% - var(--W)) / 2));overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:8px}
+.hs-track::-webkit-scrollbar{display:none}
+.hs-slide{flex:none;width:var(--W);display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-items:center;scroll-snap-align:center}
+@media (min-width:901px){.hs-slide{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(28px,3vw,48px)}}
+.hs-slide figure{margin:0;position:relative;aspect-ratio:16/9;border-radius:4px;overflow:hidden;background:var(--deep)}
+.hs-slide figure img{width:100%;height:100%;object-fit:cover}
+.hs-slide .tag{max-width:calc(100% - 24px)}
+.hs-info{max-width:66ch}
+.hs-info .v-num{margin:0}
+.hs-info h3{font-size:clamp(28px,3vw,40px);font-weight:500;color:var(--white);margin:8px 0 0}
+.hs-info h3 a{color:inherit;text-decoration:none;background:linear-gradient(var(--lime),var(--lime)) no-repeat 0 100%/0 2px;transition:background-size .6s var(--soft)}
+.hs-info h3 a:hover{background-size:100% 2px}
+.hs-info .v-head{margin:10px 0 0}
+.hs-info .v-txt{margin:6px 0 0}
+.hs-info .v-label{margin:18px 0 0}
+.hs-info .chips{margin-top:10px}
+/* com JavaScript: a rolagem vertical da página empurra a galeria para o lado */
+.js .hs:not(.hs-native) .hs-sticky{position:sticky;top:0;height:100vh;height:100svh;padding-top:96px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.js .hs:not(.hs-native) .hs-track{overflow:visible;scroll-snap-type:none;will-change:transform;padding-bottom:0;width:max-content;min-width:100%}
+.js .hs:not(.hs-native) .hs-slide{opacity:.32;transform:scale(.965);transition:opacity .8s var(--soft),transform .8s var(--soft)}
+.js .hs:not(.hs-native) .hs-slide.is-active{opacity:1;transform:none}
+@media (max-width:700px){.hs{--W:clamp(260px,88vw,920px)}.hs-slide .tag{font-size:9px;letter-spacing:.1em;left:8px;bottom:8px;padding:5px 8px}.hs-track{gap:22px}.hs-nav button{width:40px;height:40px}.hs-bar{gap:14px}}
+
+/* ================= ANIMAÇÕES MAIS SUAVES =================
+   Mesma coreografia, porém mais lenta, com curvas sem arranque brusco e deslocamentos menores. */
+:root{--soft:cubic-bezier(.25,.8,.25,1);--softer:cubic-bezier(.33,.9,.4,1)}
+/* entrada do hero */
+@keyframes rise{from{transform:translateY(60%);opacity:0}to{transform:none;opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.split-h .ln > span{animation:rise 1.5s var(--soft) both}
+.split-h .ln:nth-child(2) > span{animation-delay:.18s}
+.split-h .ln:nth-child(3) > span{animation-delay:.36s}
+.hero .eyebrow{animation:fade 1.2s .1s ease-out both}
+.hero .pillars{animation:fade 1.2s .8s ease-out both}
+.hero .ctas{animation:fadeUp 1.2s 1s var(--soft) both}
+.hero .facts > div{animation:fadeUp 1.2s var(--soft) both}
+.hero .facts > div:nth-child(1){animation-delay:1.2s}.hero .facts > div:nth-child(2){animation-delay:1.32s}
+.hero .facts > div:nth-child(3){animation-delay:1.44s}.hero .facts > div:nth-child(4){animation-delay:1.56s}
+.hero .facts::before{animation:draw 2s 1.1s var(--soft) both}
+.hero-img{animation-duration:34s}
+.facts .lime b::after{animation-duration:3.2s}
+.scroll-cue span{animation-duration:2.8s;animation-timing-function:ease-in-out}
+.js .hero .u{transition-delay:1.7s}
+/* revelar ao rolar */
+.pre{transform:translateY(22px)}
+.mosaic figure.pre,.person.pre,.leader.pre{transform:translateY(22px) scale(.985)}
+.shown{opacity:1;transform:none;transition:none;animation:revealIn 1.3s var(--d,0ms) var(--soft) backwards}
+@keyframes revealIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.js .u{transition:background-size 1.6s .45s var(--soft)}
+.dl{transition:background-size 1.7s var(--dd,0ms) var(--soft),padding-left .6s var(--soft),transform .7s var(--soft)}
+/* botões */
+.btn{transition:background .5s var(--soft),color .5s var(--soft),transform .5s var(--soft),box-shadow .6s var(--soft),border-color .5s var(--soft);animation-duration:3.8s}
+.btn::before{animation-duration:5s}
+.btn::after{animation-duration:5.5s}
+.btn.ghost{animation:none}
+.menu-btn{transition:background .5s var(--soft),color .5s var(--soft),transform .5s var(--soft),box-shadow .6s var(--soft),border-color .5s var(--soft)}
+.chip{transition:background .5s var(--soft),color .5s var(--soft),transform .5s var(--soft),box-shadow .6s var(--soft)}
+.chip::before{animation-duration:3.4s}
+.open::before{animation-duration:5.5s}
+/* menu do topo */
+.top{transition:background .6s var(--soft),border-color .6s var(--soft)}
+.top .wrap{transition:height .6s var(--soft)}
+.top .main a{transition:color .4s var(--soft)}
+.top .main a::after{transition:transform .6s var(--soft)}
+/* cards, listas e imagens */
+.card{transition:transform .7s var(--soft),border-color .5s var(--soft)}
+.card figure img,.mosaic figure img,.person img,.leader > img,.env figure img{transition:transform 1.8s var(--soft)}
+.person div{transition:transform .7s var(--soft)}
+.person::after,.leader::after{transition:opacity .6s var(--soft)}
+.leader{transition:transform .7s var(--soft)}
+.benefit{transition:padding-left .6s var(--soft)}
+.benefit::before{transition:width .6s var(--soft)}
+.item{transition:padding-left .55s var(--soft)}
+.item b{transition:color .5s var(--soft)}
+.more{transition:gap .5s var(--soft)}
+.drawer li a{transition:color .4s var(--soft),padding-left .5s var(--soft)}
+.faq summary::after{transition:transform .4s var(--soft)}
+/* visualizador de ambientes */
+.v-media img{transition:opacity 1.5s ease,transform 8s linear}
+.v-info.in > *{animation:fadeUp .9s both var(--soft)}
+.v-info.in .chip{animation:fadeUp .8s both var(--soft);animation-delay:calc(.3s + var(--k) * 100ms)}
+.v-tabs button{transition:color .4s var(--soft),padding-left .5s var(--soft)}
+/* faixa corrida */
+.mq-track{animation-duration:60s}
+/* menu lateral, popup, botões flutuantes */
+.drawer-bg{transition:opacity .5s ease,visibility 0s .5s}
+.drawer-bg.is-open{transition:opacity .5s ease}
+.drawer{transition:transform .65s var(--soft),visibility 0s .65s}
+.drawer.is-open{transition:transform .65s var(--soft)}
+.fab{transition:bottom .5s var(--soft)}
+.fab .wa::before{animation-duration:3.2s}
+.fab .top-btn{transition:opacity .45s ease,transform .5s var(--soft),visibility 0s .45s,background .4s,color .4s}
+.fab .top-btn.show{transition:opacity .45s ease,transform .5s var(--soft),background .4s,color .4s}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(130,230,40,0)}50%{box-shadow:0 0 22px 1px rgba(130,230,40,.3)}}
+@keyframes waPulse{0%{transform:scale(1);opacity:.45}70%,100%{transform:scale(1.5);opacity:0}}

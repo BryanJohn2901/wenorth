@@ -1,54 +1,7 @@
-const envs=[
- ["Vitrine de parceiros","A vitrine é o primeiro contato de quem entra.","O túnel de entrada expõe os produtos das marcas parceiras em prateleiras iluminadas. É o corredor por onde todos passam e um dos pontos mais fotografados do clube.",["Suplementação","Vestuário","Farmácia de manipulação"]],
- ["Recepção","A primeira impressão, em wellness.","A recepção apresenta a assinatura do clube e, ao fundo, a Gluteus Zone sob o mezanino. É o primeiro enquadramento de quem chega.",["Parede de marca","Gluteus Zone ao fundo"]],
- ["Photo spot","Um lugar feito para a foto.","No lounge da entrada, uma asa de LED sobre grade metálica, com o nome da marca acima. É o ponto pensado para a foto de chegada de cada convidado.",["Naming do photo spot","Asa de LED na cor da marca"]],
- ["Salão multiesportes","Cada área do salão tem nome e dono.","Musculação, treino funcional e Hyrox no mesmo salão de pé-direito duplo, onde todo o conteúdo de treino é gravado. As zonas são setorizadas por pintura e letreiro na parede.",["Leg Day Zone","Functional Training Zone","Pista de sled","Estação de avaliação"]],
- ["Gluteus Zone","A área mais filmada do treino feminino.","Sob o mezanino, uma parede inteira dedicada às máquinas de glúteo. O letreiro fica exatamente atrás de quem grava a execução.",["Naming da Gluteus Zone","Cenário fixo dos conteúdos"]],
- ["Recovery","O momento que todos filmam: a banheira de gelo.","Banheira de gelo, sauna e botas de compressão num ambiente de spa. A marca fica no painel iluminado atrás da banheira.",["Recovery by","Sauna","Compressão"]],
- ["Estúdio de podcast","A marca atrás de quem está no microfone.","O convidado se fotografa sentado de frente para o microfone. A marca aparece na faixa do vidro, na placa da mesa e no painel lateral, com a academia ao fundo.",["Podcast by","Placa na mesa","Painel lateral"]],
- ["North Room","Sala de mentorias, cursos e imersões.","Palco das mentorias, pós-graduações e imersões, também disponível para locação por empresas. A parede de ativação é o fundo de toda foto de palestrante e turma.",["North Room by","Parede de ativação","Tela de abertura dos eventos"]],
- ["Vestiário","O espelho é o ponto de selfie do clube.","No espelho de corpo inteiro e nos espelhos das pias, a faixa da marca parceira. Aparece em toda foto pós-treino.",["Espelhos by","Cosméticos, higiene e farmácia"]],
- ["Jardim suspenso","A marca integrada ao verde.","Na parede externa, um jardim vertical com o nome da marca em letras iluminadas, visível do mezanino e das estações de trabalho.",["Jardim by","Letreiro iluminado"]]
-];
 const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const pad=i=>String(i+1).padStart(2,"0");
 
-if(document.getElementById("viewer")){
-/* ---------- Ambientes: visualizador interativo ---------- */
-const tabs=document.getElementById("vtabs"), media=document.getElementById("vmedia"), info=document.getElementById("vinfo"), bar=document.getElementById("vbar");
-tabs.innerHTML=envs.map(([name],i)=>`<button type="button" role="tab" id="vt${i}" aria-selected="${i===0}" data-i="${i}"><span>${pad(i)}</span>${esc(name)}</button>`).join("");
-media.innerHTML=envs.map(([name],i)=>`<img src="/img/a${pad(i)}.webp" alt="${esc(name)}, imagem ilustrativa" class="${i===0?"on":""}" ${i>1?'loading="lazy"':""}>`).join("");
-let cur=0, timer=null, paused=false, start=0;
-const DUR=6500;
-function renderInfo(i){
-  const [name,head,txt,chips]=envs[i];
-  info.innerHTML=`<p class="v-num">Ambiente ${pad(i)} / 10</p><h3>${esc(name)}</h3><p class="v-head">${esc(head)}</p><p class="v-txt">${esc(txt)}</p>
-  <p class="v-label">Presença de marca</p><div class="chips">${chips.map((c,k)=>`<span class="chip" style="--k:${k}">${esc(c)}</span>`).join("")}</div>`;
-  info.classList.remove("in"); void info.offsetWidth; info.classList.add("in");
-}
-function go(i,user){
-  cur=(i+envs.length)%envs.length;
-  media.querySelectorAll("img").forEach((im,k)=>im.classList.toggle("on",k===cur));
-  tabs.querySelectorAll("button").forEach((b,k)=>{b.setAttribute("aria-selected",k===cur); if(k===cur&&user) b.scrollIntoView({block:"nearest",inline:"center",behavior:reduce?"auto":"smooth"});});
-  renderInfo(cur); start=performance.now();
-}
-tabs.addEventListener("click",e=>{const b=e.target.closest("button"); if(b){go(+b.dataset.i,true);}});
-tabs.addEventListener("keydown",e=>{if(e.key==="ArrowRight"||e.key==="ArrowDown"){e.preventDefault();go(cur+1,true);document.getElementById("vt"+cur).focus();}if(e.key==="ArrowLeft"||e.key==="ArrowUp"){e.preventDefault();go(cur-1,true);document.getElementById("vt"+cur).focus();}});
-const viewer=document.getElementById("viewer");
-viewer.addEventListener("mouseenter",()=>paused=true); viewer.addEventListener("mouseleave",()=>{paused=false;start=performance.now()-(parseFloat(bar.style.width)||0)/100*DUR;});
-let inView=false;
-new IntersectionObserver(es=>es.forEach(en=>inView=en.isIntersecting),{threshold:.3}).observe(viewer);
-function tick(t){
-  if(!reduce){
-    if(inView&&!paused){const p=Math.min((t-start)/DUR,1); bar.style.width=(p*100)+"%"; if(p>=1) go(cur+1,false);}
-    else if(!inView){start=t-(parseFloat(bar.style.width)||0)/100*DUR;}
-  }
-  requestAnimationFrame(tick);
-}
-go(0,false); requestAnimationFrame(tick);
-
-}
 /* ---------- contadores ---------- */
 const fmt=(v,d)=>v.toLocaleString("pt-BR",{minimumFractionDigits:d,maximumFractionDigits:d});
 function count(el){
@@ -60,27 +13,30 @@ function count(el){
 }
 
 /* ---------- revelar ao rolar (conteúdo já visível em repouso) ---------- */
-const revealSel=".card,.faq details,.steps > div,.figure-wide,.band h2,.band .eyebrow,.lede,.split p,.chips,.mosaic figure,.item,.person,.stats > div,.rec-foot,.leader,.audience > div,.benefit,.viewer,.open,.addr > div,.facts > div";
+const revealSel=".card,.faq details,.steps > div,.figure-wide,.band h2,.band .eyebrow,.lede,.prose > *,.split p,.chips,.mosaic figure,.item,.person,.stats > div,.rec-foot,.leader,.audience > div,.benefit,.viewer,.open,.addr > div,.facts > div,.card,.faq details,.steps > div,.figure-wide,.more,.tags,.final .ctas,.col > h3,.ft-grid > div,.ft-bottom,.cap";
 const els=[...document.querySelectorAll(revealSel)];
 const vh=window.innerHeight;
 const io=new IntersectionObserver(es=>es.forEach(en=>{
   if(!en.isIntersecting) return;
-  const el=en.target; el.classList.add("shown"); el.classList.remove("pre");
+  const el=en.target; if(el.classList.contains("pre")){el.classList.add("shown"); el.classList.remove("pre");}
   el.querySelectorAll("[data-count]").forEach(count); if(el.matches("[data-count]")) count(el);
   io.unobserve(el);
-}),{threshold:.15,rootMargin:"0px 0px -6% 0px"});
+}),{threshold:.12,rootMargin:"0px 0px -10% 0px"});
 if(!reduce){
   els.forEach(el=>{
     const r=el.getBoundingClientRect();
     if(r.top>vh*0.92){
       const sib=[...el.parentElement.children].filter(c=>c.matches(revealSel));
-      el.style.setProperty("--d",(Math.max(0,sib.indexOf(el))%6)*80+"ms");
+      el.style.setProperty("--d",(Math.max(0,sib.indexOf(el))%6)*110+"ms");
       el.classList.add("pre");
     }
     io.observe(el);
   });
-  /* rede de segurança: tudo aparece mesmo sem rolagem */
-  setTimeout(()=>document.querySelectorAll(".pre").forEach(el=>{el.classList.remove("pre");el.querySelectorAll("[data-count]").forEach(c=>{c.dataset.done=1;})}),6000);
+  /* no fim da página, o que ficou colado na borda inferior também aparece */
+  addEventListener("scroll",()=>{
+    if(innerHeight+scrollY<document.documentElement.scrollHeight-4) return;
+    document.querySelectorAll(".pre").forEach(el=>{el.classList.add("shown");el.classList.remove("pre");});
+  },{passive:true});
 }
 /* números do topo contam ao carregar */
 document.querySelectorAll(".facts [data-count]").forEach(el=>setTimeout(()=>count(el),reduce?0:900));
@@ -170,7 +126,7 @@ if(menuBtn&&drawer){
 (function(){
   if(reduce||typeof Lenis==="undefined") return;
   document.documentElement.style.scrollBehavior="auto";
-  const lenis=new Lenis({duration:1.15,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),smoothWheel:true,wheelMultiplier:1});
+  const lenis=new Lenis({duration:1.5,easing:t=>1-Math.pow(1-t,4),smoothWheel:true,wheelMultiplier:.9});
   window.lenis=lenis;
   function raf(t){lenis.raf(t);requestAnimationFrame(raf);}
   requestAnimationFrame(raf);
@@ -185,3 +141,72 @@ if(menuBtn&&drawer){
   document.querySelectorAll(".drawer-body,.pop-box,.v-tabs").forEach(el=>el.setAttribute("data-lenis-prevent",""));
   new MutationObserver(()=>{document.body.style.overflow==="hidden"?lenis.stop():lenis.start();}).observe(document.body,{attributes:true,attributeFilter:["style"]});
 })();
+
+/* ---------- botões flutuantes ---------- */
+(function(){
+  const topBtn=document.querySelector(".top-btn"); if(!topBtn) return;
+  const atualiza=()=>topBtn.classList.toggle("show",window.scrollY>500);
+  addEventListener("scroll",atualiza,{passive:true}); atualiza();
+  topBtn.addEventListener("click",()=>{ if(window.lenis) window.lenis.scrollTo(0); else window.scrollTo({top:0,behavior:reduce?"auto":"smooth"}); });
+  /* no celular, o banner de cookies ocupa a base: os botões sobem junto */
+  const ck=document.getElementById("aviso-cookies"), raiz=document.documentElement;
+  if(ck){
+    const ajusta=()=>{const visivel=!ck.classList.contains("hidden");raiz.style.setProperty("--ck-h",(visivel&&innerWidth<768)?(ck.offsetHeight+16)+"px":"0px");};
+    new MutationObserver(ajusta).observe(ck,{attributes:true,attributeFilter:["class"]}); addEventListener("resize",ajusta); setTimeout(ajusta,50);
+  }
+})();
+
+/* ---------- ambientes: galeria horizontal guiada pela rolagem ---------- */
+(function(){
+  const hs=document.getElementById("hs"); if(!hs) return;
+  const sticky=hs.querySelector(".hs-sticky"), track=hs.querySelector(".hs-track"), slides=[...hs.querySelectorAll(".hs-slide")];
+  const fill=hs.querySelector(".hs-line span"), cnt=hs.querySelector(".hs-count"), prev=hs.querySelector(".hs-prev"), next=hs.querySelector(".hs-next");
+  const N=slides.length; let dist=0, total=0, step=1, atual=-1, K=.8;
+  const nativo=()=>{ hs.classList.add("hs-native"); hs.style.height=""; track.style.transform=""; };
+  if(reduce){ nativo(); ligaBotoesNativo(); return; }
+  function medir(){
+    dist=Math.max(0,track.scrollWidth-sticky.clientWidth);
+    step=N>1?slides[1].offsetLeft-slides[0].offsetLeft:1;
+    total=Math.max(1,dist*K);
+    hs.style.height=(sticky.offsetHeight+total)+"px";
+    atualiza();
+  }
+  function progresso(){
+    const topo=hs.getBoundingClientRect().top;
+    return Math.min(1,Math.max(0,-topo/total));
+  }
+  function atualiza(){
+    const p=progresso(), x=p*dist;
+    track.style.transform="translate3d("+(-x)+"px,0,0)";
+    fill.style.transform="scaleX("+p+")";
+    const i=Math.min(N-1,Math.max(0,Math.round(x/step)));
+    if(i!==atual){
+      atual=i;
+      slides.forEach((s,k)=>s.classList.toggle("is-active",k===i));
+      cnt.textContent=String(i+1).padStart(2,"0")+" / "+String(N).padStart(2,"0");
+      if(prev) prev.disabled=i===0; if(next) next.disabled=i===N-1;
+    }
+  }
+  let tk=false;
+  addEventListener("scroll",()=>{if(!tk){tk=true;requestAnimationFrame(()=>{atualiza();tk=false;});}},{passive:true});
+  addEventListener("resize",medir);
+  addEventListener("load",medir);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(medir);
+  function ir(i){
+    i=Math.min(N-1,Math.max(0,i));
+    const base=hs.getBoundingClientRect().top+scrollY;
+    const alvo=base+Math.min(1,(i*step)/Math.max(1,dist))*total;
+    if(window.lenis) window.lenis.scrollTo(alvo); else scrollTo({top:alvo,behavior:"smooth"});
+  }
+  if(prev) prev.addEventListener("click",()=>ir(atual-1));
+  if(next) next.addEventListener("click",()=>ir(atual+1));
+  medir();
+  function ligaBotoesNativo(){}
+})();
+function ligaBotoesNativo(){
+  const hs=document.getElementById("hs"); if(!hs) return;
+  const track=hs.querySelector(".hs-track"), prev=hs.querySelector(".hs-prev"), next=hs.querySelector(".hs-next");
+  const passo=()=>{const s=track.querySelectorAll(".hs-slide");return s.length>1?s[1].offsetLeft-s[0].offsetLeft:track.clientWidth;};
+  if(prev) prev.addEventListener("click",()=>track.scrollBy({left:-passo(),behavior:"auto"}));
+  if(next) next.addEventListener("click",()=>track.scrollBy({left:passo(),behavior:"auto"}));
+}

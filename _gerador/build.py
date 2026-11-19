@@ -26,6 +26,37 @@ HOJE = "2026-11-18"
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 
+import json as _json
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "partes", "imagens.json")) as _f:
+    IMG = _json.load(_f)   # gerado por _gerador/imagens.py: nome -> {w, h}
+
+SIZES_CARD = "(max-width:620px) 92vw, (max-width:980px) 46vw, 380px"
+SIZES_PADRAO = "(max-width:900px) 92vw, 560px"
+
+
+def otimizar_imgs(doc):
+    """Ajusta toda <img> local: largura/altura reais, srcset leve, decoding assíncrono."""
+    def troca(m):
+        tag = m.group(0)
+        src = re.search(r'src="/img/([a-z0-9-]+)\.webp"', tag)
+        if not src:
+            return tag
+        nome = src.group(1)
+        if nome not in IMG:
+            raise SystemExit(f"imagem sem medidas em imagens.json: {nome}")
+        d = IMG[nome]
+        tag = re.sub(r'\s(width|height)="\d+"', "", tag)
+        extra = f' width="{d["w"]}" height="{d["h"]}"'
+        if nome + "-640" in IMG and "srcset" not in tag:
+            extra += f' srcset="/img/{nome}-640.webp 640w, /img/{nome}.webp {d["w"]}w"'
+            if "sizes=" not in tag:
+                extra += f' sizes="{SIZES_PADRAO}"'
+        if "decoding=" not in tag:
+            extra += ' decoding="async"'
+        return tag[:-1].rstrip("/").rstrip() + extra + ">"
+    return re.sub(r"<img\b[^>]*>", troca, doc)
+
+
 def ler(nome):
     with open(os.path.join(PARTES, nome), encoding="utf-8") as f:
         return f.read()
@@ -218,11 +249,147 @@ html{scrollbar-color:var(--lime) var(--ink);scrollbar-width:thin}
 ::-webkit-scrollbar-thumb:hover{background:#9BF04C}
 .drawer-body,.pop-box{scrollbar-color:var(--lime) transparent}
 
+
+/* botões flutuantes: WhatsApp e voltar ao topo */
+.fab{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px) + var(--ck-h,0px));z-index:80;display:flex;flex-direction:column;align-items:center;gap:12px;transition:bottom .35s cubic-bezier(.2,.7,.2,1)}
+.fab a,.fab button{position:relative;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;border:0;padding:0;cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .25s,background .25s,box-shadow .3s,opacity .3s,visibility 0s}
+.fab a:focus-visible,.fab button:focus-visible{outline:2px solid var(--white);outline-offset:4px}
+.fab .wa{background:#25D366;color:#fff;box-shadow:0 10px 28px -8px rgba(37,211,102,.7)}
+.fab .wa svg{width:30px;height:30px}
+.fab .wa::before{content:"";position:absolute;inset:0;border-radius:50%;background:#25D366;z-index:-1;animation:waPulse 2.4s ease-out infinite}
+.fab .wa:hover{background:#128C7E;transform:translateY(-3px) scale(1.04)}
+.fab .wa .tip{position:absolute;right:calc(100% + 12px);top:50%;transform:translateY(-50%) translateX(8px);opacity:0;pointer-events:none;white-space:nowrap;background:var(--ink);color:var(--white);border:1px solid var(--line);border-radius:999px;padding:9px 16px;font:500 14px/1 var(--body);transition:opacity .25s,transform .25s}
+.fab .wa:hover .tip,.fab .wa:focus-visible .tip{opacity:1;transform:translateY(-50%)}
+.fab .top-btn{width:48px;height:48px;background:var(--deep);color:var(--lime);border:1.5px solid rgba(130,230,40,.7);box-shadow:0 8px 24px -10px rgba(0,0,0,.8);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .3s,transform .3s,visibility 0s .3s,background .25s,color .25s}
+.fab .top-btn.show{opacity:1;visibility:visible;transform:none;transition:opacity .3s,transform .3s,background .25s,color .25s}
+.fab .top-btn.show:hover{background:var(--lime);color:var(--ink);transform:translateY(-3px)}
+.fab .top-btn svg{width:20px;height:20px}
+@keyframes waPulse{0%{transform:scale(1);opacity:.55}70%,100%{transform:scale(1.55);opacity:0}}
+@media (max-width:540px){.fab .wa{width:54px;height:54px}.fab .wa .tip{display:none}}
+@media (min-width:768px){#aviso-cookies{right:calc(max(20px,env(safe-area-inset-right,0px)) + 58px + 24px)}}
+
 /* rolagem suave (Lenis) */
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 .lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
 .lenis.lenis-stopped{overflow:hidden}
+
+/* seleção de texto na cor da marca */
+::selection{background:var(--lime);color:var(--ink);text-shadow:none}
+::-moz-selection{background:var(--lime);color:var(--ink);text-shadow:none}
+input::selection,textarea::selection{background:var(--lime);color:var(--ink)}
+img::selection{background:rgba(130,230,40,.35)}
+/* imagens com width/height no HTML nunca ficam esticadas */
+img{height:auto}
+.leaders > .leader{--d:0ms!important}
+/* ===== ambientes: galeria que anda na horizontal conforme a rolagem ===== */
+.hs{--W:clamp(280px,86vw,1180px);position:relative;margin-top:48px}
+.hs-sticky{display:block}
+.hs-bar{display:flex;align-items:center;gap:20px;width:100%;max-width:1180px;box-sizing:border-box;margin:0 auto 26px;padding-inline:max(20px,env(safe-area-inset-left,0px))}
+.hs-count{font-family:var(--mono);font-size:13px;letter-spacing:.24em;color:var(--lime);white-space:nowrap;min-width:5.2em}
+.hs-line{position:relative;flex:1;height:2px;background:var(--line);overflow:hidden}
+.hs-line span{position:absolute;inset:0;background:var(--lime);transform:scaleX(0);transform-origin:left}
+.hs-nav{display:flex;gap:10px}
+.hs-nav button{all:unset;box-sizing:border-box;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;color:var(--aqua);cursor:pointer;font-size:18px;transition:border-color .4s var(--soft),color .4s var(--soft),background .4s var(--soft)}
+.hs-nav button:hover{border-color:var(--lime);color:var(--lime)}
+.hs-nav button:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.hs-nav button[disabled]{opacity:.35;cursor:default;border-color:var(--line);color:var(--aqua)}
+.hs-track{display:flex;gap:40px;padding-inline:max(20px,calc((100% - var(--W)) / 2));overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:8px}
+.hs-track::-webkit-scrollbar{display:none}
+.hs-slide{flex:none;width:var(--W);display:grid;grid-template-columns:minmax(0,1fr);gap:22px;align-items:center;scroll-snap-align:center}
+@media (min-width:901px){.hs-slide{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(28px,3vw,48px)}}
+.hs-slide figure{margin:0;position:relative;aspect-ratio:16/9;border-radius:4px;overflow:hidden;background:var(--deep)}
+.hs-slide figure img{width:100%;height:100%;object-fit:cover}
+.hs-slide .tag{max-width:calc(100% - 24px)}
+.hs-info{max-width:66ch}
+.hs-info .v-num{margin:0}
+.hs-info h3{font-size:clamp(28px,3vw,40px);font-weight:500;color:var(--white);margin:8px 0 0}
+.hs-info h3 a{color:inherit;text-decoration:none;background:linear-gradient(var(--lime),var(--lime)) no-repeat 0 100%/0 2px;transition:background-size .6s var(--soft)}
+.hs-info h3 a:hover{background-size:100% 2px}
+.hs-info .v-head{margin:10px 0 0}
+.hs-info .v-txt{margin:6px 0 0}
+.hs-info .v-label{margin:18px 0 0}
+.hs-info .chips{margin-top:10px}
+/* com JavaScript: a rolagem vertical da página empurra a galeria para o lado */
+.js .hs:not(.hs-native) .hs-sticky{position:sticky;top:0;height:100vh;height:100svh;padding-top:96px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.js .hs:not(.hs-native) .hs-track{overflow:visible;scroll-snap-type:none;will-change:transform;padding-bottom:0;width:max-content;min-width:100%}
+.js .hs:not(.hs-native) .hs-slide{opacity:.32;transform:scale(.965);transition:opacity .8s var(--soft),transform .8s var(--soft)}
+.js .hs:not(.hs-native) .hs-slide.is-active{opacity:1;transform:none}
+@media (max-width:700px){.hs{--W:clamp(260px,88vw,920px)}.hs-slide .tag{font-size:9px;letter-spacing:.1em;left:8px;bottom:8px;padding:5px 8px}.hs-track{gap:22px}.hs-nav button{width:40px;height:40px}.hs-bar{gap:14px}}
+
+/* ================= ANIMAÇÕES MAIS SUAVES =================
+   Mesma coreografia, porém mais lenta, com curvas sem arranque brusco e deslocamentos menores. */
+:root{--soft:cubic-bezier(.25,.8,.25,1);--softer:cubic-bezier(.33,.9,.4,1)}
+/* entrada do hero */
+@keyframes rise{from{transform:translateY(60%);opacity:0}to{transform:none;opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.split-h .ln > span{animation:rise 1.5s var(--soft) both}
+.split-h .ln:nth-child(2) > span{animation-delay:.18s}
+.split-h .ln:nth-child(3) > span{animation-delay:.36s}
+.hero .eyebrow{animation:fade 1.2s .1s ease-out both}
+.hero .pillars{animation:fade 1.2s .8s ease-out both}
+.hero .ctas{animation:fadeUp 1.2s 1s var(--soft) both}
+.hero .facts > div{animation:fadeUp 1.2s var(--soft) both}
+.hero .facts > div:nth-child(1){animation-delay:1.2s}.hero .facts > div:nth-child(2){animation-delay:1.32s}
+.hero .facts > div:nth-child(3){animation-delay:1.44s}.hero .facts > div:nth-child(4){animation-delay:1.56s}
+.hero .facts::before{animation:draw 2s 1.1s var(--soft) both}
+.hero-img{animation-duration:34s}
+.facts .lime b::after{animation-duration:3.2s}
+.scroll-cue span{animation-duration:2.8s;animation-timing-function:ease-in-out}
+.js .hero .u{transition-delay:1.7s}
+/* revelar ao rolar */
+.pre{transform:translateY(22px)}
+.mosaic figure.pre,.person.pre,.leader.pre{transform:translateY(22px) scale(.985)}
+.shown{opacity:1;transform:none;transition:none;animation:revealIn 1.3s var(--d,0ms) var(--soft) backwards}
+@keyframes revealIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.js .u{transition:background-size 1.6s .45s var(--soft)}
+.dl{transition:background-size 1.7s var(--dd,0ms) var(--soft),padding-left .6s var(--soft),transform .7s var(--soft)}
+/* botões */
+.btn{transition:background .5s var(--soft),color .5s var(--soft),transform .5s var(--soft),box-shadow .6s var(--soft),border-color .5s var(--soft);animation-duration:3.8s}
+.btn::before{animation-duration:5s}
+.btn::after{animation-duration:5.5s}
+.btn.ghost{animation:none}
+.menu-btn{transition:background .5s var(--soft),color .5s var(--soft),transform .5s var(--soft),box-shadow .6s var(--soft),border-color .5s var(--soft)}
+.chip{transition:background .5s var(--soft),color .5s var(--soft),transform .5s var(--soft),box-shadow .6s var(--soft)}
+.chip::before{animation-duration:3.4s}
+.open::before{animation-duration:5.5s}
+/* menu do topo */
+.top{transition:background .6s var(--soft),border-color .6s var(--soft)}
+.top .wrap{transition:height .6s var(--soft)}
+.top .main a{transition:color .4s var(--soft)}
+.top .main a::after{transition:transform .6s var(--soft)}
+/* cards, listas e imagens */
+.card{transition:transform .7s var(--soft),border-color .5s var(--soft)}
+.card figure img,.mosaic figure img,.person img,.leader > img,.env figure img{transition:transform 1.8s var(--soft)}
+.person div{transition:transform .7s var(--soft)}
+.person::after,.leader::after{transition:opacity .6s var(--soft)}
+.leader{transition:transform .7s var(--soft)}
+.benefit{transition:padding-left .6s var(--soft)}
+.benefit::before{transition:width .6s var(--soft)}
+.item{transition:padding-left .55s var(--soft)}
+.item b{transition:color .5s var(--soft)}
+.more{transition:gap .5s var(--soft)}
+.drawer li a{transition:color .4s var(--soft),padding-left .5s var(--soft)}
+.faq summary::after{transition:transform .4s var(--soft)}
+/* visualizador de ambientes */
+.v-media img{transition:opacity 1.5s ease,transform 8s linear}
+.v-info.in > *{animation:fadeUp .9s both var(--soft)}
+.v-info.in .chip{animation:fadeUp .8s both var(--soft);animation-delay:calc(.3s + var(--k) * 100ms)}
+.v-tabs button{transition:color .4s var(--soft),padding-left .5s var(--soft)}
+/* faixa corrida */
+.mq-track{animation-duration:60s}
+/* menu lateral, popup, botões flutuantes */
+.drawer-bg{transition:opacity .5s ease,visibility 0s .5s}
+.drawer-bg.is-open{transition:opacity .5s ease}
+.drawer{transition:transform .65s var(--soft),visibility 0s .65s}
+.drawer.is-open{transition:transform .65s var(--soft)}
+.fab{transition:bottom .5s var(--soft)}
+.fab .wa::before{animation-duration:3.2s}
+.fab .top-btn{transition:opacity .45s ease,transform .5s var(--soft),visibility 0s .45s,background .4s,color .4s}
+.fab .top-btn.show{transition:opacity .45s ease,transform .5s var(--soft),background .4s,color .4s}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(130,230,40,0)}50%{box-shadow:0 0 22px 1px rgba(130,230,40,.3)}}
+@keyframes waPulse{0%{transform:scale(1);opacity:.45}70%,100%{transform:scale(1.5);opacity:0}}
+
 
 
 """
@@ -238,15 +405,10 @@ def montar_assets():
     gravar("assets/site.css", css.strip() + "\n")
 
     js = ler("site_orig.js")
-    js = js.replace("img/a${pad(i)}.jpg", "/img/a${pad(i)}.webp")
-    # visualizador: só roda se existir na página
-    ini = js.index("/* ---------- Ambientes: visualizador interativo ---------- */")
-    fim = js.index("/* ---------- contadores ---------- */")
-    bloco = js[ini:fim]
-    js = js[:ini] + "if(document.getElementById(\"viewer\")){\n" + bloco + "}\n" + js[fim:]
     # links do menu viram páginas: o menu ativo por rolagem só vale para âncoras
     js = js.replace('const links=[...document.querySelectorAll(".top nav a")];',
                     'const links=[...document.querySelectorAll(".top .main a")].filter(a=>(a.getAttribute("href")||"").startsWith("#"));')
+    js = js.replace("%6)*80+", "%6)*110+")
     js = js.replace("    heroImg.style.transform", "    if(heroImg) heroImg.style.transform")
     js = js.replace("    const fr=finalImg.parentElement", "    if(finalImg){const fr=finalImg.parentElement")
     js = js.replace("scale(1.15)`;\n", "scale(1.15)`;}\n")
@@ -306,7 +468,7 @@ if(menuBtn&&drawer){
 (function(){
   if(reduce||typeof Lenis==="undefined") return;
   document.documentElement.style.scrollBehavior="auto";
-  const lenis=new Lenis({duration:1.15,easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)),smoothWheel:true,wheelMultiplier:1});
+  const lenis=new Lenis({duration:1.5,easing:t=>1-Math.pow(1-t,4),smoothWheel:true,wheelMultiplier:.9});
   window.lenis=lenis;
   function raf(t){lenis.raf(t);requestAnimationFrame(raf);}
   requestAnimationFrame(raf);
@@ -321,6 +483,75 @@ if(menuBtn&&drawer){
   document.querySelectorAll(".drawer-body,.pop-box,.v-tabs").forEach(el=>el.setAttribute("data-lenis-prevent",""));
   new MutationObserver(()=>{document.body.style.overflow==="hidden"?lenis.stop():lenis.start();}).observe(document.body,{attributes:true,attributeFilter:["style"]});
 })();
+
+/* ---------- botões flutuantes ---------- */
+(function(){
+  const topBtn=document.querySelector(".top-btn"); if(!topBtn) return;
+  const atualiza=()=>topBtn.classList.toggle("show",window.scrollY>500);
+  addEventListener("scroll",atualiza,{passive:true}); atualiza();
+  topBtn.addEventListener("click",()=>{ if(window.lenis) window.lenis.scrollTo(0); else window.scrollTo({top:0,behavior:reduce?"auto":"smooth"}); });
+  /* no celular, o banner de cookies ocupa a base: os botões sobem junto */
+  const ck=document.getElementById("aviso-cookies"), raiz=document.documentElement;
+  if(ck){
+    const ajusta=()=>{const visivel=!ck.classList.contains("hidden");raiz.style.setProperty("--ck-h",(visivel&&innerWidth<768)?(ck.offsetHeight+16)+"px":"0px");};
+    new MutationObserver(ajusta).observe(ck,{attributes:true,attributeFilter:["class"]}); addEventListener("resize",ajusta); setTimeout(ajusta,50);
+  }
+})();
+
+/* ---------- ambientes: galeria horizontal guiada pela rolagem ---------- */
+(function(){
+  const hs=document.getElementById("hs"); if(!hs) return;
+  const sticky=hs.querySelector(".hs-sticky"), track=hs.querySelector(".hs-track"), slides=[...hs.querySelectorAll(".hs-slide")];
+  const fill=hs.querySelector(".hs-line span"), cnt=hs.querySelector(".hs-count"), prev=hs.querySelector(".hs-prev"), next=hs.querySelector(".hs-next");
+  const N=slides.length; let dist=0, total=0, step=1, atual=-1, K=.8;
+  const nativo=()=>{ hs.classList.add("hs-native"); hs.style.height=""; track.style.transform=""; };
+  if(reduce){ nativo(); ligaBotoesNativo(); return; }
+  function medir(){
+    dist=Math.max(0,track.scrollWidth-sticky.clientWidth);
+    step=N>1?slides[1].offsetLeft-slides[0].offsetLeft:1;
+    total=Math.max(1,dist*K);
+    hs.style.height=(sticky.offsetHeight+total)+"px";
+    atualiza();
+  }
+  function progresso(){
+    const topo=hs.getBoundingClientRect().top;
+    return Math.min(1,Math.max(0,-topo/total));
+  }
+  function atualiza(){
+    const p=progresso(), x=p*dist;
+    track.style.transform="translate3d("+(-x)+"px,0,0)";
+    fill.style.transform="scaleX("+p+")";
+    const i=Math.min(N-1,Math.max(0,Math.round(x/step)));
+    if(i!==atual){
+      atual=i;
+      slides.forEach((s,k)=>s.classList.toggle("is-active",k===i));
+      cnt.textContent=String(i+1).padStart(2,"0")+" / "+String(N).padStart(2,"0");
+      if(prev) prev.disabled=i===0; if(next) next.disabled=i===N-1;
+    }
+  }
+  let tk=false;
+  addEventListener("scroll",()=>{if(!tk){tk=true;requestAnimationFrame(()=>{atualiza();tk=false;});}},{passive:true});
+  addEventListener("resize",medir);
+  addEventListener("load",medir);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(medir);
+  function ir(i){
+    i=Math.min(N-1,Math.max(0,i));
+    const base=hs.getBoundingClientRect().top+scrollY;
+    const alvo=base+Math.min(1,(i*step)/Math.max(1,dist))*total;
+    if(window.lenis) window.lenis.scrollTo(alvo); else scrollTo({top:alvo,behavior:"smooth"});
+  }
+  if(prev) prev.addEventListener("click",()=>ir(atual-1));
+  if(next) next.addEventListener("click",()=>ir(atual+1));
+  medir();
+  function ligaBotoesNativo(){}
+})();
+function ligaBotoesNativo(){
+  const hs=document.getElementById("hs"); if(!hs) return;
+  const track=hs.querySelector(".hs-track"), prev=hs.querySelector(".hs-prev"), next=hs.querySelector(".hs-next");
+  const passo=()=>{const s=track.querySelectorAll(".hs-slide");return s.length>1?s[1].offsetLeft-s[0].offsetLeft:track.clientWidth;};
+  if(prev) prev.addEventListener("click",()=>track.scrollBy({left:-passo(),behavior:"auto"}));
+  if(next) next.addEventListener("click",()=>track.scrollBy({left:passo(),behavior:"auto"}));
+}
 """
     gravar("assets/site.js", js.strip() + "\n")
 
@@ -478,7 +709,7 @@ ORG = {
     "@id": DOMINIO + "/#org",
     "name": "WeNorth Club",
     "url": DOMINIO + "/",
-    "logo": DOMINIO + "/img/logo.png",
+    "logo": DOMINIO + "/img/logo.webp",
     "slogan": "O clube de negócios do fitness e wellness no Brasil.",
     "parentOrganization": {"@type": "Organization", "name": "Personal Trainer Academy",
                            "url": "https://www.personaltraineracademy.com.br/"},
@@ -513,11 +744,15 @@ def pagina(url, titulo, descricao, corpo, *, crumbs=None, schema=None, og_img="/
            noindex=False, cta_final=True, prioridade="0.7", og_type="website", home=False):
     versoes = ASSETS
     canon = DOMINIO + url
+    nome_og = re.sub(r"^/img/(.+)\.(?:jpg|webp|png)$", r"\1", og_img)
+    if "og/" + nome_og not in IMG:
+        raise SystemExit(f"sem imagem de compartilhamento para {og_img}")
+    og_img = f"/img/og/{nome_og}.webp"
     graph = [] if home else [ORG]
     if crumbs:
         graph.append(breadcrumb_ld(crumbs))
     graph += schema or []
-    ld = json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False)
+    ld = json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False).replace('.jpg"', '.webp"')
     robots = "noindex, follow" if noindex else "index, follow, max-image-preview:large"
     t = html.escape(titulo)
     d = html.escape(descricao)
@@ -539,11 +774,14 @@ def pagina(url, titulo, descricao, corpo, *, crumbs=None, schema=None, og_img="/
 <meta property="og:description" content="{d}">
 <meta property="og:url" content="{canon}">
 <meta property="og:image" content="{DOMINIO}{og_img}">
+<meta property="og:image:type" content="image/webp">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{t}">
 <meta name="twitter:description" content="{d}">
 <meta name="twitter:image" content="{DOMINIO}{og_img}">
-<link rel="icon" href="/img/logo.png">
+<link rel="icon" type="image/webp" href="/img/favicon.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap">
@@ -560,6 +798,11 @@ def pagina(url, titulo, descricao, corpo, *, crumbs=None, schema=None, og_img="/
 
 {RODAPE}
 
+<div class="fab">
+  <a class="wa" href="https://wa.me/554188239396?text=Ol%C3%A1%2C%20vim%20pelo%20site%20do%20WeNorth%20Club%20e%20quero%20falar%20com%20a%20equipe." target="_blank" rel="noopener" aria-label="Falar com a equipe no WhatsApp"><span class="tip">Fale no WhatsApp</span><svg viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16.04 3C8.85 3 3 8.84 3 16.02c0 2.3.6 4.54 1.74 6.52L3 29l6.62-1.7a13.02 13.02 0 0 0 6.42 1.64h.01c7.18 0 13.03-5.84 13.03-13.02C29.08 8.84 23.22 3 16.04 3Zm0 23.7h-.01a10.8 10.8 0 0 1-5.5-1.5l-.4-.23-3.93 1.01 1.05-3.83-.26-.4a10.7 10.7 0 0 1-1.66-5.73c0-5.95 4.85-10.8 10.82-10.8 2.89 0 5.6 1.12 7.64 3.17a10.72 10.72 0 0 1 3.16 7.64c0 5.96-4.86 10.67-10.91 10.67Zm5.93-8.1c-.33-.16-1.93-.95-2.23-1.06-.3-.11-.52-.16-.74.17-.22.32-.85 1.06-1.04 1.28-.19.22-.38.24-.7.08-.33-.16-1.38-.51-2.63-1.62-.97-.87-1.63-1.94-1.82-2.27-.19-.33-.02-.5.14-.66.15-.15.33-.38.5-.57.16-.19.22-.33.33-.55.11-.22.05-.41-.03-.57-.08-.16-.74-1.78-1.01-2.44-.27-.64-.54-.55-.74-.56h-.63c-.22 0-.57.08-.87.41-.3.33-1.14 1.11-1.14 2.72 0 1.6 1.17 3.15 1.33 3.37.16.22 2.3 3.5 5.57 4.91.78.34 1.38.54 1.86.69.78.25 1.49.21 2.05.13.63-.09 1.93-.79 2.2-1.55.27-.76.27-1.41.19-1.55-.08-.14-.3-.22-.63-.38Z"/></svg></a>
+  <button type="button" class="top-btn" aria-label="Voltar ao topo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+</div>
+
 {popup_html()}
 <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
 <script src="/assets/site.js?v={versoes['site.js']}"></script>
@@ -567,6 +810,7 @@ def pagina(url, titulo, descricao, corpo, *, crumbs=None, schema=None, og_img="/
 </body>
 </html>
 '''
+    doc = otimizar_imgs(doc)
     arquivo = "404.html" if url == "/404.html" else (url.strip("/") + "/index.html" if url != "/" else "index.html")
     gravar(arquivo, doc)
     if not noindex:
@@ -609,7 +853,7 @@ def phero(crumbs, eyebrow, h1, lede="", img="/img/hero.webp", ctas="", cap=True)
 
 
 def card(href, img, alt, k, titulo, texto, go="Ver mais"):
-    return f'''<a class="card" href="{href}"><figure><img src="{img}" alt="{alt}" loading="lazy" width="1200" height="750"></figure><div class="body"><span class="k">{k}</span><h3>{titulo}</h3><p>{texto}</p><span class="go">{go} →</span></div></a>'''
+    return f'''<a class="card" href="{href}"><figure><img src="{img}" alt="{alt}" loading="lazy" sizes="{SIZES_CARD}"></figure><div class="body"><span class="k">{k}</span><h3>{titulo}</h3><p>{texto}</p><span class="go">{go} →</span></div></a>'''
 
 
 def faq_html(perguntas):
